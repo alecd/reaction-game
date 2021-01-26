@@ -20,11 +20,10 @@ def main():
     # clear any previous status, e.g. from previous game
     task.clear()
     
-    # do the thing then wait for button press; replay if no presses before timeout
-    while not task.is_set():
-        print("New game!")
-        gameplay()
-        task.wait(5)
+    # do the thing then wait for button press
+    print("New game!")
+    gameplay()
+    task.wait()
     
     # this code is executed when the loop is broken by a button press, or Ctrl+C
     again = input("Play again? (y/n): ")

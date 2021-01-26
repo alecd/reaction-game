@@ -12,20 +12,9 @@ button2 = 19
 # this flag is used in the button handler to ignore premature presses
 listening = False
 
-def main():
+def new_game():
     print("New game!")
-    gameplay()
-    signal.pause()
     
-def gameover():
-    again = input("Play again? (y/n): ")
-    if again == 'y':
-        main()
-    else:        
-        gpio.cleanup()
-        sys.exit()
-    
-def gameplay():
     # start ignoring button presses
     global listening
     listening = False
@@ -48,19 +37,22 @@ def button_pressed(channel):
     # stop listening for subsequent presses
     listening = False
     print(f"Channel {channel} wins!")
-    gameover()
+    sleep(2)
+    new_game()
 
 def ctrlc_handler(signo, _frame):
-    gameover()
+    gpio.cleanup()
+    sys.exit()
 
 gpio.setmode(gpio.BCM)
 gpio.setup(led, gpio.OUT)
-gpio.setup(button1, gpio.IN, pull_up_down = gpio.PUD_DOWN)
-gpio.setup(button2, gpio.IN, pull_up_down = gpio.PUD_DOWN)
-gpio.add_event_detect(button1, gpio.RISING, callback = button_pressed, bouncetime = 100)
-gpio.add_event_detect(button2, gpio.RISING, callback = button_pressed, bouncetime = 100)
+gpio.setup(button1, gpio.IN, pull_up_down = gpio.PUD_UP)
+gpio.setup(button2, gpio.IN, pull_up_down = gpio.PUD_UP)
+gpio.add_event_detect(button1, gpio.FALLING, callback = button_pressed, bouncetime = 100)
+gpio.add_event_detect(button2, gpio.FALLING, callback = button_pressed, bouncetime = 100)
 
 # intercepts the Ctrl+C signal to a method, to allow cleanup
 signal.signal(signal.SIGINT, ctrlc_handler)
 
-main()
+new_game()
+signal.pause()
